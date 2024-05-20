@@ -1,0 +1,69 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Chat Online</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            height: 100vh;
+            background-color: #f0f0f0;
+        }
+        #login, #chat {
+            display: none;
+            flex-direction: column;
+            align-items: center;
+        }
+        #chat {
+            display: none;
+        }
+    </style>
+</head>
+<body>
+    <div id="login">
+        <h2>Enter your name</h2>
+        <input type="text" id="username" placeholder="Name">
+        <button onclick="enterChat()">Accept</button>
+    </div>
+
+    <div id="chat">
+        <ul id="messages"></ul>
+        <input id="message" autocomplete="off" placeholder="Type a message..."><button onclick="sendMessage()">Send</button>
+    </div>
+
+    <script src="/socket.io/socket.io.js"></script>
+    <script>
+        const socket = io();
+
+        function enterChat() {
+            const username = document.getElementById('username').value;
+            if (username) {
+                document.getElementById('login').style.display = 'none';
+                document.getElementById('chat').style.display = 'flex';
+                document.getElementById('message').focus();
+            }
+        }
+
+        function sendMessage() {
+            const messageInput = document.getElementById('message');
+            const message = messageInput.value;
+            if (message) {
+                socket.emit('chat message', message);
+                messageInput.value = '';
+            }
+        }
+
+        socket.on('chat message', (msg) => {
+            const messages = document.getElementById('messages');
+            const messageElement = document.createElement('li');
+            messageElement.textContent = msg;
+            messages.appendChild(messageElement);
+            window.scrollTo(0, document.body.scrollHeight);
+        });
+    </script>
+</body>
+</html>
